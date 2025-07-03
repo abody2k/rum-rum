@@ -21,7 +21,7 @@ import { Component, signal } from "@angular/core";
     }
     `,
     styles:`
-    h1 {font-size:2em, color:blue} `
+    h1 {font-size:2em; color:blue} `
 
 
 })
