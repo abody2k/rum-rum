@@ -27,6 +27,11 @@ export const routes: Routes = [
         path:"room/:roomID",
         component:Room
     },
+    {
+
+        path:"room/:roomID/:key",
+        component:Room
+    },
     {path:"rooms",
         component:Rooms
     }
