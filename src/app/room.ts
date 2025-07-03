@@ -251,8 +251,11 @@ export class Room implements OnDestroy,AfterViewInit{
     
 
     ngOnDestroy(): void {
-        this.socket.socket.off("message");
-        this.socket.socket.off("nou");
+        this.socket.socket.emitWithAck("lv").then(()=>{
+
+        this.socket.leaveRoom();
+        });
+        
     }
 }
 
