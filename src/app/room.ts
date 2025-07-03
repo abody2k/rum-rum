@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, signal, ViewChild } from "@angular/core";
 import { of, single } from "rxjs";
 import { SocketController } from "./socket";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 
 @Component({
@@ -65,9 +65,10 @@ export class Room implements OnDestroy,AfterViewInit{
     src = signal({})
     streaming = false
 
-    httpClient = inject(HttpClient)
-    socket = inject(SocketController)
-    route = inject(ActivatedRoute)
+    httpClient = inject(HttpClient);
+    socket = inject(SocketController);
+    route = inject(ActivatedRoute);
+    router = inject(Router);
     readonly ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
     peerConnection = new RTCPeerConnection({iceServers:this.ICE_SERVERS});
     roomID = "";
@@ -240,7 +241,18 @@ export class Room implements OnDestroy,AfterViewInit{
             
         })
 
-        this.socket.socket.emit("jr",this.route.snapshot.paramMap.get("roomID"));
+        this.socket.socket.emitWithAck("jr",this.roomID+(this.roomKey ? (","+this.roomKey): "")).then((e)=>{
+            
+            console.log("new ack");
+            console.log(e);
+            
+            
+            if (e== "lv"){ // the room you tried to enter does not exist
+                this.router.navigate(['/r404']);
+
+            }
+            
+        })
 
 
         // this.httpClient.post("/jr",{})

@@ -5,6 +5,7 @@ import { NoSecret } from './nosecret';
 import { Login } from './login';
 import { Room } from './room';
 import { Rooms } from './rooms';
+import { NotReal } from './404';
 
 export const routes: Routes = [
     {path:"",
@@ -34,6 +35,11 @@ export const routes: Routes = [
     },
     {path:"rooms",
         component:Rooms
+    },
+
+    {
+        path:"r404",
+        component:NotReal
     }
 
 
