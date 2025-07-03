@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, signal, ViewChild } from "@angular/core";
 import { of, single } from "rxjs";
 import { SocketController } from "./socket";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 
 @Component({
@@ -64,10 +64,12 @@ export class Room implements OnDestroy,AfterViewInit{
     numberOfPplInTheRoom = signal(0);
     src = signal({})
     streaming = false
+    myIndex=0
 
-    httpClient = inject(HttpClient)
-    socket = inject(SocketController)
-    route = inject(ActivatedRoute)
+    httpClient = inject(HttpClient);
+    socket = inject(SocketController);
+    route = inject(ActivatedRoute);
+    router = inject(Router);
     readonly ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
     peerConnection = new RTCPeerConnection({iceServers:this.ICE_SERVERS});
     roomID = "";
@@ -111,7 +113,8 @@ export class Room implements OnDestroy,AfterViewInit{
 
             this.dataChannel.onopen=(e)=>{
 
-
+                console.log("data channel is opened");
+                
 
 
             }
@@ -132,7 +135,6 @@ export class Room implements OnDestroy,AfterViewInit{
 
 
                 this.peerConnection.addTrack(track,this.localStream);
-                console.log(track);
                 
             })
 
@@ -143,16 +145,13 @@ export class Room implements OnDestroy,AfterViewInit{
             }
             this.peerConnection.ontrack=(e)=>{
 
-                console.log("got this track just right now");
-                
-                console.log(e.streams);
+   
                  e.streams[0].getTracks().forEach((track)=>{
                     this.remoteStream.addTrack(track);
 
                 })
 // 
                 this.remotevid.nativeElement.srcObject= this.remoteStream
-                console.log(this.remotevid);
                 this.streaming= true;
                 
                 
@@ -180,26 +179,25 @@ export class Room implements OnDestroy,AfterViewInit{
         this.roomID = this.route.snapshot.paramMap.get("roomID") as string;
         this.roomKey = this.route.snapshot.paramMap.get("key") as string || "";
         this.socket.socket.on("nou",async(data)=>{
+        this.numberOfPplInTheRoom.set ( (data as number) );
 
-            if(this.numberOfPplInTheRoom()==1){
+            if(this.myIndex==2){
 
                 const offer = await( this.peerConnection).createOffer();
                 await this.peerConnection.setLocalDescription(offer);
-                console.log(this.route.snapshot.paramMap.get("roomID")+"،"+JSON.stringify(offer));
                 
                 this.socket.socket.emit("offer",this.route.snapshot.paramMap.get("roomID")+"،"+JSON.stringify(offer));
                 
             }
-            this.numberOfPplInTheRoom.set ( (data as number) + 1);
+            
             this.status = 1;
-            console.log(this.numberOfPplInTheRoom);
+
             
 
             
         })
 
         this.socket.socket.on("offer",async(data)=>{
-            console.log("new offer");
             
             const offer = JSON.parse(data);
             await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
@@ -221,26 +219,72 @@ export class Room implements OnDestroy,AfterViewInit{
             const candidate = JSON.parse(data);
             try {
                await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-               console.log(candidate);
-               
-               console.log("done done and finished");
+
                
             } catch (error) {
-                console.log(error);
+               
                 
             }
 
         })
+
+
+        this.socket.socket.on("lft",(data)=>{
+
+
+            this.numberOfPplInTheRoom.update((value)=>value-1);
+            this.myIndex=0;
+            this.remoteStream = new MediaStream();
+            // this.peerConnection.close()
+            this.peerConnection = new RTCPeerConnection({iceServers:this.ICE_SERVERS});
+            this.peerConnection.onicecandidate=(e)=>{
+            if (e.candidate){
+
+                this.socket.socket.emit("can",this.roomID+"،"+JSON.stringify(e.candidate));
+            }
+        }
+                 e.getTracks().forEach((track)=>{
+
+
+                this.peerConnection.addTrack(track,this.localStream);
+                
+            })
+            
+                        this.peerConnection.ontrack=(e)=>{
+
+   
+                 e.streams[0].getTracks().forEach((track)=>{
+                    this.remoteStream.addTrack(track);
+
+                })
+// 
+                this.remotevid.nativeElement.srcObject= this.remoteStream
+                this.streaming= true;
+                
+                
+                
+                
+            }
+            
+        })
         
         this.socket.socket.on("message",(value)=>{
 
-            console.log("new msg");
-            console.log(value);
             
             
         })
 
-        this.socket.socket.emit("jr",this.route.snapshot.paramMap.get("roomID"));
+        this.socket.socket.emitWithAck("jr",this.roomID+(this.roomKey ? (","+this.roomKey): "")).then((e)=>{
+   
+            
+            if (e== "lv"){ // the room you tried to enter does not exist
+                this.router.navigate(['/r404']);
+
+            }else{
+                this.myIndex = Number(e);
+            }
+            
+        })
 
 
         // this.httpClient.post("/jr",{})
