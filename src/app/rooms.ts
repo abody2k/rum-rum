@@ -57,10 +57,17 @@ export class Rooms{
     }){
 
     this.httpClient.post<{
-        id:string
+        id:string,
+        k:string // key
     }>("http://localhost:3000/nr",data).subscribe((data)=>{
         this.roomCreationWindowVisible=false;
+        if(data.k){
+        this.router.navigate([`/room/${data.id}/${data.k}`]);
+
+        }else{
         this.router.navigate([`/room/${data.id}`]);
+
+        }
         
         
 

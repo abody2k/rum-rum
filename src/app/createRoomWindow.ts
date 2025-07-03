@@ -32,7 +32,7 @@ import { FormsModule } from "@angular/forms";
  </div>
 
   <div class="flex flex-row justify-center items-center p-2 gap-2">
-    <p class="font-bold text-2xl">Locked room? :</p> <input type="checkbox"  [checked]="locked">
+    <p class="font-bold text-2xl">Locked room? :</p> <input type="checkbox"  [(ngModel)]="locked">
   </div>
 
 </div>
@@ -62,6 +62,13 @@ export class CreateRoomWindow {
     }
 
     createARoom(){
+        console.log({
+            rt:this.title,
+            rk: this.locked ? 1 : 0
+
+        });
+        console.log(this.locked);
+        
         
         this.create.emit({
             rt:this.title,

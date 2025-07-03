@@ -71,6 +71,7 @@ export class Room implements OnDestroy,AfterViewInit{
     readonly ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
     peerConnection = new RTCPeerConnection({iceServers:this.ICE_SERVERS});
     roomID = "";
+    roomKey="";
     localStream = new MediaStream();
     remoteStream = new MediaStream();
     dataChannel = this.peerConnection.createDataChannel("messages");
@@ -177,7 +178,7 @@ export class Room implements OnDestroy,AfterViewInit{
 
         }, 500);
         this.roomID = this.route.snapshot.paramMap.get("roomID") as string;
-
+        this.roomKey = this.route.snapshot.paramMap.get("key") as string || "";
         this.socket.socket.on("nou",async(data)=>{
 
             if(this.numberOfPplInTheRoom()==1){
