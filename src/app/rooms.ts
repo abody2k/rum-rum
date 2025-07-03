@@ -20,7 +20,7 @@ import { Router } from "@angular/router";
         
 
       @for (room of rooms(); track $index){
-        <RoomCard [title]="room.title" [roomID]="room.ID" [ppl]="room.ppl"/>
+        <RoomCard [title]="room.title" [roomID]="room.ID" [ppl]="room.ppl" [locked]="room.locked"/>
 
     } @empty {
 
@@ -46,7 +46,7 @@ import { Router } from "@angular/router";
 export class Rooms{
 
     roomCreationWindowVisible=false
-    rooms = signal<{title:string, ID:string, ppl:number}[]>([])
+    rooms = signal<{title:string, ID:string, ppl:number,locked:boolean}[]>([])
     httpClient = inject(HttpClient)
     router = inject(Router)
 
@@ -84,7 +84,7 @@ export class Rooms{
             
             if(d && Array.isArray(d)){
                 
-                this.rooms.set((d as []).map((data)=>{return {title:data[0],ID:data[1],ppl:data[2]}}))
+                this.rooms.set((d as []).map((data)=>{return {title:data[0],ID:data[1],ppl:data[2],locked:data[3]}}))
                 // this.rooms.set(d);
             }
 
