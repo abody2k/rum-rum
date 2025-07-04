@@ -12,13 +12,14 @@ template:`
     <div class="bg-red-50 w-screen h-screen">
 
 
+    <button class="fixed  bg-red-400 p-2 right-0 m-1 rounded hover:bg-red-600 active:bg-red-800 text-red-50" (click)="goHome()">Go back home</button>
 @if (status === 0) {
 <h5 class="flex items-center justify-center h-screen w-screen">You are joining the room {{dots}}</h5>
 
 }@else { 
 
 
-    <div> No. of ppl in the room : {{numberOfPplInTheRoom()}}</div>
+    <div > No. of ppl in the room : {{numberOfPplInTheRoom()}}</div>
     <button></button>
 
 
@@ -31,23 +32,32 @@ template:`
     @if (!streaming){
 <div>There is no stream</div>
     }
-        <video #remoteVideo autoplay class=" w-screen h-screen"> </video>
-   
-   
-   <input type="text" (keydown)="send($event)" [(ngModel)]="message" class="w-screen h-4">
-    <div class="flex flex-col justify-center items-center scroll-auto">
+       <div class="flex flex-row w-screen max-h-96">
+
+ <video #remoteVideo autoplay class=" w-2/3 h-auto rounded transition"> </video>
+ 
+<div class="flex flex-col w-1/3">
+    <div class="flex flex-col  h-80 overflow-scroll bg-white justify-end items-start">
 
     @for(message of messages(); track $index){
 
         @if (message.fromMe){
-        <div class="p-4 m-4 bg-amber-200 font-bold "> {{message.msg}}</div>
+        <div class="p-4 m-4 bg-amber-200 font-bold rounded "> {{message.msg}}</div>
 
         }@else {
-        <div class="p-4 m-4 bg-red-200 font-bold "> {{message.msg}}</div>
+        <div class="p-4 m-4 bg-red-200 font-bold rounded ml-auto"> {{message.msg}}</div>
 
         }
     }
     </div>
+       <input  type="text" (keydown)="send($event)" [(ngModel)]="message" class="w-auto bg-white rounded h-20 ring-1 ring-red-300">
+
+</div>
+
+       </div>
+   
+   
+    
 
 
     </div>
@@ -85,6 +95,12 @@ export class Room implements OnDestroy,AfterViewInit{
     dataChannel! : RTCDataChannel
     message=""
     messages = signal<{msg:string , fromMe:boolean}[]>([] as Array<{msg:string , fromMe:boolean}>)
+
+
+    goHome(){
+
+        this.router.navigate(['/rooms'])
+    }
     send(event : KeyboardEvent){
 
         if(event.key != "Enter")
