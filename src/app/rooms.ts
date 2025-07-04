@@ -1,8 +1,9 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { RoomCard } from "./roomCard";
 import { HttpClient } from "@angular/common/http";
 import { CreateRoomWindow } from "./createRoomWindow";
-import { Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
+import { filter } from "rxjs";
 
 @Component({
 
@@ -43,7 +44,18 @@ import { Router } from "@angular/router";
 
 
 
-export class Rooms{
+export class Rooms implements OnInit{
+
+    ngOnInit(): void {
+        this.router.events.pipe(filter((e)=>e instanceof NavigationEnd)).subscribe(()=>{
+            console.log("you came back");
+            
+            this.fetchRooms();
+
+
+
+        })
+    }
 
     roomCreationWindowVisible=false
     rooms = signal<{title:string, ID:string, ppl:number,locked:boolean}[]>([])
@@ -81,8 +93,15 @@ export class Rooms{
 
 
         //fetch data
-        this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
+        this.fetchRooms();
+
+    }
+
+    fetchRooms(){
+
+                this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
             console.log(d);
+            this.rooms.set([]);
             
             if(d && Array.isArray(d)){
                 
@@ -92,8 +111,6 @@ export class Rooms{
 
         })
     }
-
-
     
 
 

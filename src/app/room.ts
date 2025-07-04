@@ -98,8 +98,9 @@ export class Room implements OnDestroy,AfterViewInit{
 
 
     goHome(){
-
-        this.router.navigate(['/rooms'])
+        this.ngOnDestroy();
+        this.router.navigate(['/rooms']);
+    
     }
     send(event : KeyboardEvent){
 
