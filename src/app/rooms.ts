@@ -60,6 +60,8 @@ export class Rooms{
         id:string,
         k:string // key
     }>("http://localhost:3000/nr",data).subscribe((data)=>{
+        console.log(data);
+        
         this.roomCreationWindowVisible=false;
         if(data.k){
         this.router.navigate([`/room/${data.id}/${data.k}`]);

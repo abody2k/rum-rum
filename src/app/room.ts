@@ -37,9 +37,15 @@ template:`
    <input type="text" (keydown)="send($event)" [(ngModel)]="message" class="w-screen h-4">
     <div class="flex flex-col justify-center items-center scroll-auto">
 
-    @for(message of messages; track $index){
-        <div class="p-4 m-4 bg-amber-200 font-bold "> {{message}}</div>
+    @for(message of messages(); track $index){
 
+        @if (message.fromMe){
+        <div class="p-4 m-4 bg-amber-200 font-bold "> {{message.msg}}</div>
+
+        }@else {
+        <div class="p-4 m-4 bg-red-200 font-bold "> {{message.msg}}</div>
+
+        }
     }
     </div>
 
@@ -76,9 +82,9 @@ export class Room implements OnDestroy,AfterViewInit{
     roomKey="";
     localStream = new MediaStream();
     remoteStream = new MediaStream();
-    dataChannel = this.peerConnection.createDataChannel("messages");
+    dataChannel! : RTCDataChannel
     message=""
-    messages: string[]=[]
+    messages = signal<{msg:string , fromMe:boolean}[]>([] as Array<{msg:string , fromMe:boolean}>)
     send(event : KeyboardEvent){
 
         if(event.key != "Enter")
@@ -88,14 +94,10 @@ export class Room implements OnDestroy,AfterViewInit{
         
         this.dataChannel.send(this.message)
         
-        this.messages.push(this.message)
+        this.messages().push({msg:this.message,fromMe:true})
         this.message=""
     }
-    constructor() {
 
-
-        
-    }
 
 
 
@@ -111,25 +113,6 @@ export class Room implements OnDestroy,AfterViewInit{
 
             this.localStream = e;
 
-            this.dataChannel.onopen=(e)=>{
-
-                console.log("data channel is opened");
-                
-
-
-            }
-
-
-            this.dataChannel.onmessage=(e)=>{
-
-                console.log("got a message");
-                console.log(e);
-                
-                console.log(e.data);
-                
-
-
-            }
         
             e.getTracks().forEach((track)=>{
 
@@ -181,13 +164,50 @@ export class Room implements OnDestroy,AfterViewInit{
         this.socket.socket.on("nou",async(data)=>{
         this.numberOfPplInTheRoom.set ( (data as number) );
 
-            if(this.myIndex==2){
+            if(this.myIndex==2){ // I'm the one who intiates the call
+                this.dataChannel = this.peerConnection.createDataChannel("messages");
+                this.dataChannel.onmessage=(e)=>{
+
+                    console.log("got a new message and I'm the caller");
+                    console.log(e);
+                    this.messages().push({
+                    msg:e.data,fromMe:false
+                });
+                    
+                    
+                }
 
                 const offer = await( this.peerConnection).createOffer();
                 await this.peerConnection.setLocalDescription(offer);
                 
                 this.socket.socket.emit("offer",this.route.snapshot.paramMap.get("roomID")+"،"+JSON.stringify(offer));
                 
+            }else{
+
+                this.peerConnection.ondatachannel = (e)=>{
+                    this.dataChannel = e.channel
+                    
+
+            this.dataChannel.onmessage=(ee)=>{
+
+                console.log("got a message and I'm the callee");
+                console.log(ee);
+                
+                console.log(ee.data);
+                console.log("bal?");
+                
+
+                this.messages().push({
+                    msg:ee.data,fromMe:false
+                });
+                
+                
+
+
+            }
+
+
+                }
             }
             
             this.status = 1;
@@ -237,6 +257,21 @@ export class Room implements OnDestroy,AfterViewInit{
             this.remoteStream = new MediaStream();
             // this.peerConnection.close()
             this.peerConnection = new RTCPeerConnection({iceServers:this.ICE_SERVERS});
+            this.peerConnection.ondatachannel= (e)=>{
+
+                this.dataChannel = e.channel;
+
+                this.dataChannel.onmessage =(d)=>{
+
+                    console.log("got a new message and I'm the callee");
+                    console.log(d);
+                    this.messages().push({
+                    msg:d.data,fromMe:false
+                });
+                    
+                    
+                }
+            }
             this.peerConnection.onicecandidate=(e)=>{
             if (e.candidate){
 
