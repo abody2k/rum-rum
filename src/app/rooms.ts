@@ -1,8 +1,10 @@
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import { RoomCard } from "./roomCard";
 import { HttpClient } from "@angular/common/http";
 import { CreateRoomWindow } from "./createRoomWindow";
-import { Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
+import { filter } from "rxjs";
+import { SocketController } from "./socket";
 
 @Component({
 
@@ -43,8 +45,40 @@ import { Router } from "@angular/router";
 
 
 
-export class Rooms{
+export class Rooms implements OnInit,OnDestroy{
 
+    socket = inject(SocketController)
+    ngOnInit(): void {
+        this.router.events.pipe(filter((e)=>e instanceof NavigationEnd)).subscribe(()=>{
+            console.log("you came back");
+            
+            this.fetchRooms();
+
+
+            // listen to new updates of rooms including how many ppl in rooms
+            this.socket.socket.emit("jrms");
+            this.socket.socket.on("rms",(d)=>{
+
+                console.log("got new rooms");
+                
+            this.rooms.set([]);
+            
+            if(d && Array.isArray(d)){
+                
+                this.rooms.set((d as []).map((data)=>{return {title:data[0],ID:data[1],ppl:data[2],locked:data[3]}}))
+                // this.rooms.set(d);
+            }
+            })
+
+
+
+        })
+    }
+    
+
+    ngOnDestroy(): void {
+        this.socket.socket.off("rms");
+    }
     roomCreationWindowVisible=false
     rooms = signal<{title:string, ID:string, ppl:number,locked:boolean}[]>([])
     httpClient = inject(HttpClient)
@@ -60,6 +94,8 @@ export class Rooms{
         id:string,
         k:string // key
     }>("http://localhost:3000/nr",data).subscribe((data)=>{
+        console.log(data);
+        
         this.roomCreationWindowVisible=false;
         if(data.k){
         this.router.navigate([`/room/${data.id}/${data.k}`]);
@@ -79,8 +115,28 @@ export class Rooms{
 
 
         //fetch data
-        this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
+        this.fetchRooms();
+        this.socket.socket.emit("jrms");
+        this.socket.socket.on("rms",(d)=>{
+
+                console.log("got new rooms");
+                
+            this.rooms.set([]);
+            
+            if(d && Array.isArray(d)){
+                
+                this.rooms.set((d as []).map((data)=>{return {title:data[0],ID:data[1],ppl:data[2],locked:data[3]}}))
+                // this.rooms.set(d);
+            }
+            })
+
+    }
+
+    fetchRooms(){
+
+                this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
             console.log(d);
+            this.rooms.set([]);
             
             if(d && Array.isArray(d)){
                 
@@ -90,8 +146,6 @@ export class Rooms{
 
         })
     }
-
-
     
 
 
