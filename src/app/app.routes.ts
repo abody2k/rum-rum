@@ -1,15 +1,14 @@
 import { Routes } from '@angular/router';
-import { Secret } from './secret';
-import { Profile } from './profile';
-import { NoSecret } from './nosecret';
 import { Login } from './login';
 import { Room } from './room';
 import { Rooms } from './rooms';
 import { NotReal } from './404';
 
 export const routes: Routes = [
+
     {path:"",
-        component:Profile
+        redirectTo:"rooms",
+        pathMatch:"full"
     },
 
     {
