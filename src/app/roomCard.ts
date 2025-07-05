@@ -5,7 +5,7 @@ import { Router } from "@angular/router";
 
     template:`
     
-    <div class="p-4 m-4 bg-white rounded-2xl flex flex-col items-center"> room title : {{title()}}
+    <div class="p-4 m-4 bg-white rounded-2xl flex flex-col items-center shadow-2xs hover:shadow transition bg-clip-padding backdrop-filter  backdrop-blur  backdrop-saturate-100 backdrop-contrast-100"> room title : {{title()}}
 
     <p> {{ppl()}}/2</p>
     @if (ppl() <2){

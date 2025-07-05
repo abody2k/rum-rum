@@ -14,10 +14,10 @@ import { SocketController } from "./socket";
     
   <div class="bg-red-50 w-screen h-screen"> 
 
-  <h1>Rooms, welcome to Rum rum</h1>
+  <h1 class=" bg-red-900 text-white rounded-b h-10">welcome to Rum rum</h1>
 
     <CreateRoomWindow [visible]="roomCreationWindowVisible" (close)="roomCreationWindowVisible = false" (create)="createARoom($event)"/>
-    <button class=" bg-red-400 p-2 m-4 rounded hover:bg-red-600 active:bg-red-800 text-red-50" (click)="roomCreationWindowVisible = true">Create a room</button>
+    <button class=" bg-red-400 p-2 m-4 rounded hover:bg-red-600 active:bg-red-800 text-red-50 transition" (click)="roomCreationWindowVisible = true">Create a room</button>
     <div class=" w-full h-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" >
         
 
@@ -93,7 +93,7 @@ export class Rooms implements OnInit,OnDestroy{
     this.httpClient.post<{
         id:string,
         k:string // key
-    }>("http://localhost:3000/nr",data).subscribe((data)=>{
+    }>("/nr",data).subscribe((data)=>{
         console.log(data);
         
         this.roomCreationWindowVisible=false;
@@ -134,7 +134,7 @@ export class Rooms implements OnInit,OnDestroy{
 
     fetchRooms(){
 
-                this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
+                this.httpClient.post<unknown>("/gr",{}).subscribe((d)=>{
             console.log(d);
             this.rooms.set([]);
             

@@ -1,24 +1,16 @@
 import { Routes } from '@angular/router';
-import { Secret } from './secret';
-import { Profile } from './profile';
-import { NoSecret } from './nosecret';
 import { Login } from './login';
 import { Room } from './room';
 import { Rooms } from './rooms';
 import { NotReal } from './404';
 
 export const routes: Routes = [
+
     {path:"",
-        component:Profile
-    },
-    {
-        path:"secret",
-        component:NoSecret
+        redirectTo:"rooms",
+        pathMatch:"full"
     },
 
-    {path:"secret/:something",
-        component:Secret
-    },
     {
         path:"login",
         component:Login
@@ -33,6 +25,7 @@ export const routes: Routes = [
         path:"room/:roomID/:key",
         component:Room
     },
+
     {path:"rooms",
         component:Rooms
     },
