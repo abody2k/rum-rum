@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 })
 export class SocketController{
 
-    socket = io("http://localhost:3000")
+    socket = io()
     constructor(){
         console.log("we are connecting ...");
         

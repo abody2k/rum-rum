@@ -93,7 +93,7 @@ export class Rooms implements OnInit,OnDestroy{
     this.httpClient.post<{
         id:string,
         k:string // key
-    }>("http://localhost:3000/nr",data).subscribe((data)=>{
+    }>("/nr",data).subscribe((data)=>{
         console.log(data);
         
         this.roomCreationWindowVisible=false;
@@ -134,7 +134,7 @@ export class Rooms implements OnInit,OnDestroy{
 
     fetchRooms(){
 
-                this.httpClient.post<unknown>("http://localhost:3000/gr",{}).subscribe((d)=>{
+                this.httpClient.post<unknown>("/gr",{}).subscribe((d)=>{
             console.log(d);
             this.rooms.set([]);
             

@@ -11,14 +11,7 @@ export const routes: Routes = [
     {path:"",
         component:Profile
     },
-    {
-        path:"secret",
-        component:NoSecret
-    },
 
-    {path:"secret/:something",
-        component:Secret
-    },
     {
         path:"login",
         component:Login
@@ -33,6 +26,7 @@ export const routes: Routes = [
         path:"room/:roomID/:key",
         component:Room
     },
+
     {path:"rooms",
         component:Rooms
     },
