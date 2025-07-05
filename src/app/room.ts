@@ -42,15 +42,15 @@ template:`
     @for(message of messages(); track $index){
 
         @if (message.fromMe){
-        <div class="p-4 m-4 bg-amber-200 font-bold rounded "> {{message.msg}}</div>
+        <div class="p-4 m-4 bg-amber-200/80 font-bold rounded bg-clip-padding backdrop-filter  backdrop-blur  backdrop-saturate-100 backdrop-contrast-100 "> {{message.msg}}</div>
 
         }@else {
-        <div class="p-4 m-4 bg-red-200 font-bold rounded ml-auto"> {{message.msg}}</div>
+        <div class="p-4 m-4 bg-red-200/80 font-bold rounded ml-auto bg-clip-padding backdrop-filter  backdrop-blur  backdrop-saturate-100 backdrop-contrast-100"> {{message.msg}}</div>
 
         }
     }
     </div>
-       <input  type="text" (keydown)="send($event)" [(ngModel)]="message" class="w-auto bg-white rounded h-20 ring-1 ring-red-300">
+       <input  type="text" (keydown)="send($event)" [(ngModel)]="message" class="w-auto bg-white rounded h-20 ring-1 ring-red-300 accent-red-400">
 
 </div>
 
